@@ -1,0 +1,65 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body.contact-body {
+	font-size: 62.5%;
+	font-family: Helvetica, sans-serif;
+	background: #333;
+}
+
+p {
+	font-size: 1.3em;
+	margin-bottom: 15px;
+}
+
+
+#page-wrap h1 {
+	color:#fff;
+}
+
+#page-wrap a {
+	color:#fff;
+}
+
+#page-wrap {
+	padding: 60px 50px 20px 50px;
+	text-align:center;
+	margin: 20px auto;
+	min-height: 500px;
+	height: auto !important;
+	height: 500px;
+}
+
+
+#contact-area input, #contact-area textarea {
+	padding: 5px;
+	width: 471px;
+	font-family: Helvetica, sans-serif;
+	font-size: 1.4em;
+	margin: 0px 0px 10px 0px;
+	border: 2px solid #ccc;
+}
+
+#contact-area textarea {
+	height: 90px;
+}
+
+#contact-area textarea:focus, #contact-area input:focus {
+	border: 2px solid #900;
+}
+
+#contact-area input.submit-button {
+	width: 100px;
+	float: right;
+}
+
+label {
+	float: left;
+	text-align: right;
+	margin-right: 15px;
+	width: 100px;
+	padding-top: 5px;
+	font-size: 1.4em;
+}

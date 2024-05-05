@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, abort, jsonify
+from flask import Flask, request, render_template, abort, jsonify,send_from_directory
 import requests
 
 app = Flask(__name__)
@@ -7,13 +7,13 @@ api_base_url = "http://localhost:5000"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('templates', 'landingpage.html')
 
 @app.route('/<page>')
 def render_page(page):
     try:
         filename = f"{page}.html"
-        return render_template(filename)
+        return send_from_directory('templates', filename)
     except:
         abort(404)
 

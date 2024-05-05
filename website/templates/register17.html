@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iofrm</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="css/iofrm-style.css">
+    <link rel="stylesheet" type="text/css" href="css/iofrm-theme17.css">
+</head>
+<body>
+    <div class="form-body without-side">
+        <div class="website-logo">
+            
+                    <h1 style="color: aliceblue; text-align: center;">Seanexus</h1>
+                
+        </div>
+        <div class="row">
+            <div class="img-holder">
+                <div class="bg"></div>
+                <div class="info-holder">
+                    <img src="images/graphic3.svg" alt="">
+                </div>
+            </div>
+            <div class="form-holder">
+                <div class="form-content">
+                    <div class="form-items">
+                        <h3>Register new account</h3>
+                        <p></p>
+                        <form>
+                            <input class="form-control" type="text" name="name" placeholder="Full Name" required>
+                            <input class="form-control" type="email" name="email" placeholder="E-mail Address" required>
+                            <input class="form-control" type="password" name="password" placeholder="Password" required>
+                            <div class="form-button">
+                                <button id="submit" type="submit" class="ibtn">Register</button>
+                            </div>
+                        </form>
+                        
+                        <div class="page-links">
+                            <a href="login17.html">Login to account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Add this script tag at the end of your HTML file -->
+<script>
+    const form = document.querySelector('form');
+    const submitButton = document.querySelector('#submit');
+  
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault(); // Prevent the default form submission
+  
+      const name = form.elements.name.value;
+      const email = form.elements.email.value;
+      const password = form.elements.password.value;
+  
+      const response = await fetch('http://127.0.0.1:5000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Signup successful
+        alert(data.message);
+        // Optionally, you can store the user_id or perform additional actions
+        const userId = data.user_id;
+        console.log('User ID:', userId);
+      } else {
+        // Signup failed
+        alert(data.message);
+      }
+    });
+  </script>
+
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
