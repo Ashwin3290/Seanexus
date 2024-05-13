@@ -358,43 +358,7 @@
 </div>
 </div>
 
-<script>
-  document.getElementById('submit-button').addEventListener('click', function() {
-    var fileInput = document.getElementById('qr-code-input');
-    var file = fileInput.files[0];
-
-    if (file) {
-      var formData = new FormData();
-      formData.append('qr_code', file);
-
-      fetch('backend/upload_qr_code', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (response.ok) {
-          alert('QR code uploaded successfully!');
-        } else {
-          alert('Failed to upload QR code. Please try again.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while uploading QR code.');
-      });
-    } else {
-      alert('Please select a QR code image to upload.');
-    }
-  });
-</script>
-
-
-
-
-
-
-
-
+<script src="api.js"></script>
 
 <script type="text/javascript" src="js/jquery.js" ></script>
 <script type="text/javascript" src="js/ui/core.min.js" ></script>

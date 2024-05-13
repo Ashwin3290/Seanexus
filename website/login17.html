@@ -12,10 +12,8 @@
 <body>
     <div class="form-body without-side">
         <div class="website-logo">
-            
             <h1 style="color: aliceblue; text-align: center;">Seanexus</h1>
-        
-</div>
+        </div>
         <div class="row">
             <div class="img-holder">
                 <div class="bg"></div>
@@ -28,11 +26,11 @@
                     <div class="form-items">
                         <h3>Login to account</h3>
                         <p></p>
-                        <form>
-                            <input class="form-control" type="text" name="username" placeholder="E-mail Address" required>
-                            <input class="form-control" type="password" name="password" placeholder="Password" required>
+                        <form id="loginForm">
+                            <input class="form-control" type="text" name="email" id="email" placeholder="E-mail Address" required>
+                            <input class="form-control" type="password" name="password" id="password" placeholder="Password" required>
                             <div class="form-button">
-                                <button id="submit" type="submit" class="ibtn">Login</button> <a href="forget17.html">Forget password?</a>
+                                <button id="submit" class="ibtn">Login</button> <a href="forget17.html">Forget password?</a>
                             </div>
                         </form>
                         
@@ -45,40 +43,8 @@
         </div>
     </div>
 
-    <script>
-        const form = document.querySelector('form');
-        const submitButton = document.querySelector('#submit');
-      
-        form.addEventListener('submit', async (event) => {
-          event.preventDefault(); // Prevent the default form submission
-      
-          const email = form.elements.username.value;
-          const password = form.elements.password.value;
-      
-          const response = await fetch('http://127.0.0.1:5000/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-          });
-      
-          const data = await response.json();
-      
-          if (response.ok) {
-            // Login successful
-            alert(data.message);
-            window.location.href = 'selection.html';
-            // Redirect or perform additional actions
-          } else {
-            // Login failed
-            alert(data.message);
-          }
-        });
-      </script>
-
-
-
+<!-- Include the api.js script -->
+<script src="api.js"></script>
 
 <script src="js/jquery.min.js"></script>
 <script src="js/popper.min.js"></script>

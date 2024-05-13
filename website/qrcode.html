@@ -93,10 +93,10 @@
         <div class="loader-section section-fade"></div>
         <div class="loader-close-button" style="display: none;"><span class="screen-reader-text">Close</span></div>
     </div>
-    <div id="perspective" style="">
+    <div id="perspective">
         <!-- Begin mobile menu -->
         <a id="btn-close-mobile-menu" href="javascript:;"></a>
-  
+
         <div class="mobile-menu-wrapper">
             <div class="mobile-menu-content">
                 <div class="menu-main-menu-container">
@@ -297,24 +297,59 @@
 <div class="ph">
     <div class="container">
         <h2>Save QR Code</h2>
-        <img src="your_qr_code_image_url_here" id="qr-code-img" alt="QR Code">
+        <img src="qrcode.png" id="qr-code-img" alt="QR Code">
         <br>
         <button id="save-btn">Save QR Code</button>
     </div>
 </div>
 
     <script>
-        document.getElementById('save-btn').addEventListener('click', function() {
-            const qrCodeImg = document.getElementById('qr-code-img');
-            const imgURL = qrCodeImg.src;
+// Function to fetch and display the QR code
+function getQRCode() {
+    // Retrieve transaction ID from session storage
+    const transactionID = sessionStorage.getItem('transactionID');
 
-            const a = document.createElement('a');
-            a.href = imgURL;
-            a.download = 'qr_code.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+    // Send GET request to fetch QR code
+    fetch(`/qr_code/${transactionID}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch QR code');
+            }
+            return response.blob();
+        })
+        .then(qrCodeBlob => {
+            // Convert blob to object URL
+            const qrCodeURL = URL.createObjectURL(qrCodeBlob);
+            
+            // Display QR code in img container
+            const qrCodeImg = document.getElementById('qr-code-img');
+            qrCodeImg.src = qrCodeURL;
+        })
+        .catch(error => {
+            console.error(error);
         });
+}
+
+// Function to save the QR code
+function saveQRCode() {
+    const qrCodeImg = document.getElementById('qr-code-img');
+    const imgURL = qrCodeImg.src;
+
+    // Create a temporary link to trigger download
+    const a = document.createElement('a');
+    a.href = imgURL;
+    a.download = 'qr_code.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// Event listener for button click to save QR code
+document.getElementById('save-btn').addEventListener('click', saveQRCode);
+
+// Call getQRCode function when the page loads
+window.addEventListener('load', getQRCode);
+
     </script>
 
 

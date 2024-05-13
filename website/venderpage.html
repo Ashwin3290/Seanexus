@@ -111,7 +111,7 @@
         <div class="loader-section section-fade"></div>
         <div class="loader-close-button" style="display: none;"><span class="screen-reader-text">Close</span></div>
     </div>
-    <div id="perspective" style="">
+    <div id="perspective">
         <!-- Begin mobile menu -->
         <a id="btn-close-mobile-menu" href="javascript:;"></a>
   
@@ -296,8 +296,8 @@
                                 </div>
                             </section>
                             <a id="go-to-top" href="javascript:;"><span class="ti-arrow-up"></span></a>
-  
-                          </div>
+
+                        </div>
 
     <div class="ph">
     <div class="container">
@@ -309,7 +309,7 @@
             <label for="catch-time">Catch Time:</label>
             <input type="time" id="catch-time">
         </div>
-        <button id="submit-btn">Submit</button>
+        <button id="submit-btn" onclick="makeTransaction()">Submit</button>
     </div>
     <div id="vendor-id"></div>
 </div>
@@ -383,64 +383,7 @@ function redirectToNextPage() {
 
 </script>
 
-
-
-
-
-<script>
-    // Assuming you have already installed the 'jsonwebtoken' library
-const jwt = require('jsonwebtoken');
-
-// Your secret key for signing the JWT
-const secretKey = 'your_secret_key';
-
-// Function to generate a JWT token
-function generateToken(payload) {
-  return jwt.sign(payload, secretKey, { expiresIn: '1h' });
-}
-
-// Function to handle the form submission
-document.getElementById('submit-btn').addEventListener('click', () => {
-  const shipmentWeight = document.getElementById('shipment-weight').value;
-  const catchTime = document.getElementById('catch-time').value;
-
-  // Create the payload for the JWT
-  const payload = {
-    shipmentWeight: shipmentWeight,
-    catchTime: catchTime,
-    // Add any other relevant data you want to include
-  };
-
-  // Generate the JWT token
-  const token = generateToken(payload);
-
-  // Send the token to the server
-  // You can do this using a fetch or axios request
-  fetch('/submit-shipment', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': Bearer ${token}
-    },
-    body: JSON.stringify({ shipmentWeight, catchTime })
-  })
-  .then(response => response.json())
-  .then(data => {
-    // Handle the response from the server
-    console.log(data);
-
-    // Display the vendor ID
-    document.getElementById('vendor-id').textContent = Vendor ID: ${data.vendorId};
-  })
-  .catch(error => {
-    console.error('Error submitting shipment:', error);
-  });
-});
-</script>
-
-
-
-
+<script src="api.js"></script>
 
     <script>
         document.getElementById('submit-btn').addEventListener('click', generateVendorId);
@@ -453,16 +396,10 @@ document.getElementById('submit-btn').addEventListener('click', () => {
                 return;
             }
             const time = document.getElementById('catch-time').value || '00:00';
-            const id = VENDOR${Math.floor(Math.random() * 10000)}-${weight}-${time.replace(':', '')};
-            document.getElementById('vendor-id').textContent = Vendor ID: ${id};
-        }
+            const id = `VENDOR${Math.floor(Math.random() * 10000)}-${weight}-${time.replace(':', '')}`;
+            document.getElementById('vendor-id').textContent = `Vendor ID: ${id}`;
+            }
     </script>
-
-
-
-
-
-
 
     <script type="text/javascript" src="js/jquery.js" ></script>
     <script type="text/javascript" src="js/ui/core.min.js" ></script>
