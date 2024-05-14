@@ -1,6 +1,29 @@
+#!/bin/bash
 
-docker-compose -f ./artifacts/docker-compose.yaml up -d
+# Start Docker if not already running
+sudo systemctl start docker
 
-sleep 5
-python3 api.py
+# Check if Docker is running
+if sudo systemctl is-active --quiet docker; then
+    echo "Docker is running."
+else
+    echo "Failed to start Docker."
+    exit 1
+fi
 
+# Change directory to /artifacts
+cd artifacts
+dir
+
+docker-compose up -d
+if [ $? -eq 0 ]; then
+    echo "docker-compose ran successfully."
+else
+    echo "Failed to run docker-compose."
+    exit 1
+fi
+
+
+sleep 10
+
+python api.py

@@ -1,30 +1,46 @@
+var base_url = "http://127.0.0.1:5000";
+
 function signupUser() {
     var name = document.getElementById('name').value;
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
 
-    $.ajax({
-        type: "POST",
-        url: "/signup",
-        contentType: "application/json",
-        data: JSON.stringify({ name: name, email: email, password: password }),
-        success: function(response) {
-            alert(response.message);
-            // window.location.href = "/login";
+    const requestData = {
+        name: name,
+        email: email,
+        password: password
+    };
+
+    fetch(base_url+"/signup", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
         },
-        error: function(xhr, status, error) {
-            alert("Error: " + xhr.responseText);
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.user_id) {
+            sessionStorage.setItem('user_id', data.user_id);
+            window.location.href = "/user.html";
+        } else {
+            alert(data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Error: " + error);
     });
 }
 
-// Function to handle login
+
 function loginUser() {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     $.ajax({
         type: "POST",
-        url: "/login",
+        url: base_url+"/login",
         contentType: "application/json",
         data: JSON.stringify({ email: email, password: password }),
         success: function(response) {
@@ -32,7 +48,7 @@ function loginUser() {
             if (response.ok) {
                 sessionStorage.setItem('username', email);
                 sessionStorage.setItem('password', password);
-                // window.location.href = "/dashboard";
+                window.location.href = "user.html";
             }
         },
         error: function(xhr, status, error) {
@@ -43,13 +59,14 @@ function loginUser() {
 function makeTransaction() {
     const shipmentWeight = document.getElementById('shipment-weight').value;
     const catchTime = document.getElementById('catch-time').value;
-    const vendorId = sessionStorage.getItem('vendorId'); 
+    const vendorId = sessionStorage.getItem('vendorId');
+    const ipAddress = window.location.hostname;
     const requestData = {
         function: "pushData",
-        args: [vendorId, shipmentWeight, "ipAddress", catchTime]
+        args: [vendorId, shipmentWeight, ipAddress, catchTime]
     };
 
-    fetch('/invoke', {
+    fetch(base_url+'/invoke', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -72,7 +89,7 @@ function submitQRCode() {
     }
     const formData = new FormData();
     formData.append('qr_image', qrCodeInput.files[0]);
-    fetch('/decode_qr_code', {
+    fetch(base_url+'/decode_qr_code', {
         method: 'POST',
         body: formData
     })
@@ -88,42 +105,12 @@ function submitQRCode() {
 }
 
 function fetchTransactionDetails(vendorId) {
-    const url = '/query';
-    const data = {
-        function: 'queryData',
-        args: [vendorId]
-    };
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        displayTransactionDetails(data.result);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while fetching transaction details.');
-    });
-}
-
-function fetchTransactionDetails(vendorId) {
-    const url = '/query';
     const data = {
         function: 'queryDataByVendorID',
         args: [vendorId]
     };
 
-    fetch(url, {
+    fetch(base_url+'/query', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

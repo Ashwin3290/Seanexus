@@ -4,19 +4,20 @@ import subprocess
 from flask_restful import Api, Resource
 import json
 from pymongo import MongoClient
-from werkzeug.utils import secure_filename
 from datetime import datetime
 import io
-import base64
 import uuid
 import qrcode
 from io import BytesIO
 from PIL import Image
 from pyzbar.pyzbar import decode
-import re
+import requests
+from flask_cors import CORS
+import random
 
 app = Flask((__name__))
 api=Api(app) 
+CORS(app)
 
 client = MongoClient("mongodb://localhost:27017")  
 db = client["seanexus"]  
@@ -41,9 +42,7 @@ class Login(Resource):
         user_data = request.get_json()
         email = user_data.get('email')
         password = user_data.get('password')
-
-        # Check if user_id and pass word are valid
-        # Save user data to MongoDB
+        
         if validate_credentials(email, password):  
             return {'message': 'Login successful'}, 200
         else:
@@ -54,7 +53,7 @@ class Login(Resource):
 def validate_credentials(email, password):
     user = user_data.find_one({'email': email})
     if user and user['password'] == password:
-        return True
+        return True,user['user_id']
     else:
         return False
     
@@ -98,26 +97,26 @@ def check_email_exists( email):
     return existing_user is not None
 
 def save_user_data(name, email,password):
-    user_id = str(uuid.uuid4())
+    user_id = str(random.randint(1000, 999999))
     signup_data = {'user_id': user_id, 'email': email, 'password': password, 'name': name}
     user_data.insert_one(signup_data)    
 
 api.add_resource(Login, "/login")
 api.add_resource(Signup, "/signup")
 
-@app.route('/register', methods=['POST'])
-def register():
-    username = request.json.get('username')
-    password = request.json.get('password')
-    if not username or not password:
-        return jsonify({'error': 'Username and password are required'}), 400
+# @app.route('/register', methods=['POST'])
+# def register():
+#     username = request.json.get('username')
+#     password = request.json.get('password')
+#     if not username or not password:
+#         return jsonify({'error': 'Username and password are required'}), 400
 
-    try:
-        enroll_user(username, password)
-        register_user(username, password)
-        return jsonify({'message': 'User registered and enrolled successfully'}), 200
-    except subprocess.CalledProcessError as e:
-        return jsonify({'error': str(e)}), 500
+#     try:
+#         enroll_user(username, password)
+#         register_user(username, password)
+#         return jsonify({'message': 'User registered and enrolled successfully'}), 200
+#     except subprocess.CalledProcessError as e:
+#         return jsonify({'error': str(e)}), 500
 
 def push_data():
     function = request.json.get('function')
@@ -128,6 +127,10 @@ def push_data():
     try:
         timestamp = str(datetime.now().isoformat())
         transaction_id = generate_unique_transaction_id()
+        freegeoip_url = f"http://freegeoip.app/json/{args[2]}"
+        response = requests.get(freegeoip_url)
+        geolocation_data = response.json()
+
         _, error = invoke_chaincode(function, transaction_id, args[0], args[1], args[2], timestamp)
         if error:
             return jsonify({'error': error}), 500
@@ -193,4 +196,4 @@ def decode_qr_code():
             return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='10.42.0.1', port=5000, debug=True)
+    app.run(port=5000, debug=True)
