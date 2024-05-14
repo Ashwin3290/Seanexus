@@ -119,7 +119,6 @@ def register():
     except subprocess.CalledProcessError as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/invoke', methods=['POST'])
 def push_data():
     function = request.json.get('function')
     args = request.json.get('args', [])
@@ -129,15 +128,33 @@ def push_data():
     try:
         timestamp = str(datetime.now().isoformat())
         transaction_id = generate_unique_transaction_id()
-        _,error=invoke_chaincode(function, transaction_id,args[0], args[1], args[2], timestamp)
+        _, error = invoke_chaincode(function, transaction_id, args[0], args[1], args[2], timestamp)
         if error:
             return jsonify({'error': error}), 500
+
         if transaction_id:
-            transactions.insert_one({'transaction_id': transaction_id, 'function': function, 'args': args, 'timestamp':timestamp })
-        qrcode=generate_qr_code(transaction_id)
-        return send_file(qrcode, mimetype='image/png'), 200
+            qr_code_image = generate_qr_code(transaction_id)
+            transactions.update_one(
+                {'transaction_id': transaction_id},
+                {'$set': {'qr_code': qr_code_image.getvalue()}}
+            )
+
+        return jsonify({'message': 'Transaction completed successfully'}), 200
+    
     except subprocess.CalledProcessError as e:
         return jsonify({'error': str(e)}), 500
+
+# New endpoint to serve QR code image based on transaction ID
+@app.route('/qr_code/<transaction_id>', methods=['GET'])
+def get_qr_code(transaction_id):
+    # Fetch QR code data from the transactions table
+    transaction = transactions.find_one({'transaction_id': transaction_id})
+    if transaction and 'qr_code' in transaction:
+        # Serve QR code image
+        qr_code_image = BytesIO(transaction['qr_code'])
+        return send_file(qr_code_image, mimetype='image/png'), 200
+    else:
+        return jsonify({'error': 'QR code not found'}), 404
 
 @app.route('/query', methods=['GET'])
 def query():
@@ -153,8 +170,6 @@ def query():
         return jsonify({'result':eval(result[1:])}), 200
     except subprocess.CalledProcessError as e:
         return jsonify({'error': str(e)}), 500
-
-
 
 @app.route('/decode_qr_code', methods=['POST'])
 def decode_qr_code():
@@ -178,4 +193,4 @@ def decode_qr_code():
             return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='10.42.0.1', port=5000, debug=True)
