@@ -23,7 +23,7 @@ function signupUser() {
         console.log(data);
         if (data.user_id) {
             sessionStorage.setItem('user_id', data.user_id);
-            window.location.href = "/user.html";
+            window.location.replace("user.html");
         } else {
             alert(data.message);
         }
@@ -38,33 +38,42 @@ function signupUser() {
 function loginUser() {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
-    $.ajax({
-        type: "POST",
-        url: base_url+"/login",
-        contentType: "application/json",
-        data: JSON.stringify({ email: email, password: password }),
-        success: function(response) {
-            alert(response.message);
-            if (response.ok) {
-                sessionStorage.setItem('username', email);
-                sessionStorage.setItem('password', password);
-                window.location.href = "user.html";
-            }
+    const requestData = {
+        email: email,
+        password: password
+    };
+    fetch(base_url+"/login", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
         },
-        error: function(xhr, status, error) {
-            alert("Error: " + xhr.responseText);
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.ok) {
+            sessionStorage.setItem('vendor_id', data.vendor_id);
+            window.location.replace("user.html");
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Error: " + error);
     });
 }
+
 function makeTransaction() {
     const shipmentWeight = document.getElementById('shipment-weight').value;
     const catchTime = document.getElementById('catch-time').value;
-    const vendorId = sessionStorage.getItem('vendorId');
+    // const vendorId = sessionStorage.getItem('vendor_id');
+    const vendorId = 683503;
     const ipAddress = window.location.hostname;
     const requestData = {
         function: "pushData",
         args: [vendorId, shipmentWeight, ipAddress, catchTime]
     };
+    console.log(requestData);
 
     fetch(base_url+'/invoke', {
         method: 'POST',

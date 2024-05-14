@@ -312,7 +312,7 @@
         </div>
         <button id="submit-btn" onclick="makeTransaction()">Submit</button>
     </div>
-    <div id="vendor-id"></div>
+    <!-- <div id="vendor-id"></div> -->
 </div>
 
 <script>
@@ -334,73 +334,12 @@ submitBtn.addEventListener('click', () => {
     alert('Please fill in all fields.');
     return;
   }
-
-  // Prepare the data to be sent to the backend
-  const formData = {
-    shipmentWeight,
-    catchTime,
-  };
-
-  // Send the data to the backend (replace with your actual backend implementation)
-  sendDataToBackend(formData)
-    .then((response) => {
-      // Handle the response from the backend
-      const vendorId = response.vendorId; // Assuming the backend returns a vendor ID
-      displayVendorId(vendorId);
-      displayAlert('Form submitted successfully!');
-      window.location.href = 'qrcode.html';
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-      displayAlert('An error occurred. Please try again.');
-    });
 });
-
-// Function to send the data to the backend (replace with your actual implementation)
-function sendDataToBackend(data) {
-  // You can use fetch, XMLHttpRequest, or any other method to send the data to your backend
-  // For demonstration purposes, we'll simulate a successful response with a setTimeout
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ vendorId: 'ABC123' });
-    }, 2000);
-  });
-}
-
-// Function to display the vendor ID
-function displayVendorId(vendorId) {
-  vendorIdDiv.textContent = `Vendor ID: ${vendorId}`;
-}
-
-// Function to display an alert
-function displayAlert(message) {
-  alert(message);
-}
-
-// Function to redirect to the next page
-function redirectToNextPage() {
-  window.location.href = 'next-page.html'; // Replace with the desired URL
-}
 
 </script>
 
 <script src="api.js"></script>
 
-    <script>
-        document.getElementById('submit-btn').addEventListener('click', generateVendorId);
-
-        function generateVendorId() {
-            let weight = document.getElementById('shipment-weight').value;
-            if (weight < 0) {
-                document.getElementById('shipment-weight').value = '';
-                alert('Weight cannot be negative');
-                return;
-            }
-            const time = document.getElementById('catch-time').value || '00:00';
-            const id = `VENDOR${Math.floor(Math.random() * 10000)}-${weight}-${time.replace(':', '')}`;
-            document.getElementById('vendor-id').textContent = `Vendor ID: ${id}`;
-            }
-    </script>
 
     <script type="text/javascript" src="js/jquery.js" ></script>
     <script type="text/javascript" src="js/ui/core.min.js" ></script>

@@ -42,9 +42,9 @@ class Login(Resource):
         user_data = request.get_json()
         email = user_data.get('email')
         password = user_data.get('password')
-        
-        if validate_credentials(email, password):  
-            return {'message': 'Login successful'}, 200
+        status,user_id = validate_credentials(email, password)
+        if status:  
+            return {'message': 'Login successful',"vendor_id":user_id}, 200
         else:
             return {'message': 'Invalid credentials'}, 401
 
@@ -55,7 +55,7 @@ def validate_credentials(email, password):
     if user and user['password'] == password:
         return True,user['user_id']
     else:
-        return False
+        return False,None
     
 def generate_qr_code(data):
     qr = qrcode.QRCode(
@@ -118,34 +118,48 @@ api.add_resource(Signup, "/signup")
 #     except subprocess.CalledProcessError as e:
 #         return jsonify({'error': str(e)}), 500
 
+@app.route('/invoke', methods=['POST', 'OPTIONS'])
 def push_data():
-    function = request.json.get('function')
-    args = request.json.get('args', [])
-    if not function:
-        return jsonify({'error': 'Function and username are required'}), 400
+        
+    if request.method == 'OPTIONS':
+        response = jsonify({'message': 'Preflight request handled successfully'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
 
-    try:
-        timestamp = str(datetime.now().isoformat())
-        transaction_id = generate_unique_transaction_id()
-        freegeoip_url = f"http://freegeoip.app/json/{args[2]}"
-        response = requests.get(freegeoip_url)
-        geolocation_data = response.json()
+    if request.method == 'POST':
+        function = request.json.get('function')
 
-        _, error = invoke_chaincode(function, transaction_id, args[0], args[1], args[2], timestamp)
-        if error:
-            return jsonify({'error': error}), 500
 
-        if transaction_id:
-            qr_code_image = generate_qr_code(transaction_id)
-            transactions.update_one(
-                {'transaction_id': transaction_id},
-                {'$set': {'qr_code': qr_code_image.getvalue()}}
-            )
+        args = request.json.get('args', [])
+        if not function:
+            return jsonify({'error': 'Function and username are required'}), 400
 
-        return jsonify({'message': 'Transaction completed successfully'}), 200
-    
-    except subprocess.CalledProcessError as e:
-        return jsonify({'error': str(e)}), 500
+        try:
+            timestamp = str(datetime.now().isoformat())
+            # transaction_id = generate_unique_transaction_id()
+            transaction_id= str(uuid.uuid4())
+            freegeoip_url = f"http://freegeoip.app/json/{args[2]}"
+            response = requests.get(freegeoip_url)
+            print(response)
+            # geolocation_data = response.json()
+
+            _, error = invoke_chaincode(function, transaction_id, args[0], args[1], args[2], timestamp)
+            if error:
+                return jsonify({'error': error}), 500
+
+            if transaction_id:
+                qr_code_image = generate_qr_code(transaction_id)
+                transactions.update_one(
+                    {'transaction_id': transaction_id},
+                    {'$set': {'qr_code': qr_code_image.getvalue()}}
+                )
+
+            return jsonify({'message': 'Transaction completed successfully'}), 200
+        
+        except subprocess.CalledProcessError as e:
+            return jsonify({'error': str(e)}), 500
 
 # New endpoint to serve QR code image based on transaction ID
 @app.route('/qr_code/<transaction_id>', methods=['GET'])
@@ -159,7 +173,7 @@ def get_qr_code(transaction_id):
     else:
         return jsonify({'error': 'QR code not found'}), 404
 
-@app.route('/query', methods=['GET'])
+@app.route('/query', methods=['POST'])
 def query():
     function = request.json.get('function')
     args = request.json.get('args', [])
