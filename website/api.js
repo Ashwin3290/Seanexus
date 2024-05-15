@@ -133,6 +133,7 @@ function fetchTransactionDetails(vendorId) {
         return response.json();
     })
     .then(data => {
+        
         displayTransactionDetails(data.result);
     })
     .catch(error => {

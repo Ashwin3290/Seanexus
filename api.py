@@ -140,9 +140,9 @@ def push_data():
             timestamp = str(datetime.now().isoformat())
             # transaction_id = generate_unique_transaction_id()
             transaction_id= str(uuid.uuid4())
-            freegeoip_url = f"http://freegeoip.app/json/{args[2]}"
-            response = requests.get(freegeoip_url)
-            print(response)
+            # freegeoip_url = f"http://freegeoip.app/json/{args[2]}"
+            # response = requests.get(freegeoip_url)
+            # print(response)
             # geolocation_data = response.json()
 
             _, error = invoke_chaincode(function, transaction_id, args[0], args[1], args[2], timestamp)
@@ -205,6 +205,7 @@ def decode_qr_code():
             result,error = invoke_chaincode(function, decoded_data)
             if error:
                 return jsonify({'error': error}), 500
+            print(clean(result))
             return jsonify({'result': clean(result)}), 200
         except subprocess.CalledProcessError as e:
             return jsonify({'error': str(e)}), 500
