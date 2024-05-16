@@ -37,19 +37,6 @@ def generate_unique_transaction_id():
     else:
         return transaction_id
     
-class Login(Resource):
-    def post(self):
-        user_data = request.get_json()
-        email = user_data.get('email')
-        password = user_data.get('password')
-        status,user_id = validate_credentials(email, password)
-        if status:  
-            return {'message': 'Login successful',"vendor_id":user_id}, 200
-        else:
-            return {'message': 'Invalid credentials'}, 401
-
-
-
 def validate_credentials(email, password):
     user = user_data.find_one({'email': email})
     if user and user['password'] == password:
@@ -74,9 +61,29 @@ def generate_qr_code(data):
     
     return img_bytes_io
 
+def check_email_exists( email):
+    existing_user = user_data.find_one({'email': email})
+    return existing_user is not None
+
+def save_user_data(name, email,password):
+    user_id = str(random.randint(1000, 999999))
+    signup_data = {'user_id': user_id, 'email': email, 'password': password, 'name': name}
+    user_data.insert_one(signup_data)    
+
 
 def clean(data):
     return json.loads(data)
+
+class Login(Resource):
+    def post(self):
+        user_data = request.get_json()
+        email = user_data.get('email')
+        password = user_data.get('password')
+        status,user_id = validate_credentials(email, password)
+        if status:  
+            return {'message': 'Login successful',"vendor_id":user_id}, 200
+        else:
+            return {'message': 'Invalid credentials'}, 401
 
 class Signup(Resource):
     def post(self):
@@ -92,31 +99,10 @@ class Signup(Resource):
 
         return {'message': 'Signup successful',"user_id":user_id}, 200
     
-def check_email_exists( email):
-    existing_user = user_data.find_one({'email': email})
-    return existing_user is not None
-
-def save_user_data(name, email,password):
-    user_id = str(random.randint(1000, 999999))
-    signup_data = {'user_id': user_id, 'email': email, 'password': password, 'name': name}
-    user_data.insert_one(signup_data)    
 
 api.add_resource(Login, "/login")
 api.add_resource(Signup, "/signup")
 
-# @app.route('/register', methods=['POST'])
-# def register():
-#     username = request.json.get('username')
-#     password = request.json.get('password')
-#     if not username or not password:
-#         return jsonify({'error': 'Username and password are required'}), 400
-
-#     try:
-#         enroll_user(username, password)
-#         register_user(username, password)
-#         return jsonify({'message': 'User registered and enrolled successfully'}), 200
-#     except subprocess.CalledProcessError as e:
-#         return jsonify({'error': str(e)}), 500
 
 @app.route('/invoke', methods=['POST', 'OPTIONS'])
 def push_data():
@@ -151,11 +137,10 @@ def push_data():
 
             if transaction_id:
                 qr_code_image = generate_qr_code(transaction_id)
-                transactions.update_one(
+                transactions.insert_one(
                     {'transaction_id': transaction_id},
                     {'$set': {'qr_code': qr_code_image.getvalue()}}
                 )
-
             return jsonify({'message': 'Transaction completed successfully'}), 200
         
         except subprocess.CalledProcessError as e:

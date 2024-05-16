@@ -1,4 +1,4 @@
-var base_url = "http://127.0.0.1:5000";
+var base_url = "http://localhost:5000";
 
 function signupUser() {
     var name = document.getElementById('name').value;
@@ -116,7 +116,7 @@ function submitQRCode() {
 function fetchTransactionDetails(vendorId) {
     const data = {
         function: 'queryDataByVendorID',
-        args: [vendorId]
+        args: [683503]
     };
 
     fetch(base_url+'/query', {

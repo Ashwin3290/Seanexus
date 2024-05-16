@@ -35,7 +35,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
             logging.error(f'File not found: {file_name}')
 
 # Set the port number you want to use
-PORT = 8000
+PORT = 5500
 
 # Create the server with the custom request handler
 httpd = socketserver.TCPServer(("", PORT), CustomRequestHandler)
